@@ -1,0 +1,61 @@
+"""
+Game constants and configuration
+"""
+
+# Screen settings
+SCREEN_WIDTH = 1024
+SCREEN_HEIGHT = 768
+FPS = 60
+
+# Colors (RGB)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (128, 128, 128)
+DARK_GRAY = (64, 64, 64)
+LIGHT_GRAY = (192, 192, 192)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+ORANGE = (255, 165, 0)
+PURPLE = (128, 0, 128)
+BROWN = (139, 69, 19)
+GOLD = (255, 215, 0)
+
+# Hexagon settings
+HEX_RADIUS = 30
+HEX_WIDTH = HEX_RADIUS * 2
+HEX_HEIGHT = int(HEX_RADIUS * 1.732)  # sqrt(3) * radius
+
+# Grid settings
+GRID_WIDTH = 15
+GRID_HEIGHT = 12
+GRID_OFFSET_X = 100
+GRID_OFFSET_Y = 100
+
+# Game settings
+STARTING_HEALTH = 100
+STARTING_GOLD = 0
+STARTING_FLOOR = 1
+
+# Tile types
+TILE_FLOOR = 0
+TILE_WALL = 1
+TILE_STAIRS_DOWN = 2
+TILE_STAIRS_UP = 3
+TILE_GOLD = 4
+TILE_ENEMY = 5
+
+# Tile colors
+TILE_COLORS = {
+    TILE_FLOOR: LIGHT_GRAY,
+    TILE_WALL: DARK_GRAY,
+    TILE_STAIRS_DOWN: BLUE,
+    TILE_STAIRS_UP: GREEN,
+    TILE_GOLD: GOLD,
+    TILE_ENEMY: RED
+}
+
+# Player settings
+PLAYER_COLOR = PURPLE
+PLAYER_MOVE_SPEED = 0.3  # seconds per move
