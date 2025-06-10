@@ -2,6 +2,8 @@
 
 A turn-based dungeon crawler game built with PyGame featuring hexagonal grid movement and classic ASCII-style graphics.
 
+![picture](assets/image.png 'Example')
+
 ## Features
 
 - **Hexagonal Grid Movement**: Move in 6 directions using click-based controls
@@ -61,7 +63,7 @@ python main.py
 - **Chasing**: Enemies will pursue the player when detected
 - **Different Speeds**: Each enemy type moves at different intervals
   - Skeletons: Fast (1.5s between moves)
-  - Goblins: Medium (2.5s between moves)  
+  - Goblins: Medium (2.5s between moves)
   - Orcs: Slow (3.0s between moves)
   - Trolls: Very slow (4.0s between moves)
 
@@ -76,6 +78,7 @@ The game uses a **Nuclear Throne-inspired** generation system:
 - **Progressive Complexity**: Deeper floors use different generation parameters
 
 ### Generation Process:
+
 1. **Floor Carving**: Walkers move through the grid, converting walls to floors
 2. **Room Creation**: Walkers occasionally carve out larger open areas
 3. **Corridor Splitting**: New walkers spawn to create branching paths
@@ -110,4 +113,5 @@ The game is built with a modular architecture:
 - Save/load game functionality
 - Sound effects and music
 - Improved graphics and animations
+
 # aws-build-games-challenge
