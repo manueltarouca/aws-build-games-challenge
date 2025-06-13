@@ -49,6 +49,14 @@ class ASCIIRenderer:
             "ui_accent": (100, 200, 255),      # Cyan
             "explored": (60, 60, 60),          # Very dark gray
             "preview": (80, 80, 100),          # Dark blue-gray
+            "error": (255, 100, 100),          # Red for errors
+            "success": (100, 255, 150),        # Green for success
+            "warning": (255, 200, 100),        # Yellow for warnings
+            "ui_panel": (25, 25, 35),          # Dark panel background
+            "gold": (255, 215, 0),             # Gold color for gold messages
+            "damage_dealt": (255, 150, 100),   # Orange for damage dealt
+            "damage_received": (255, 100, 100), # Red for damage received
+            "heal": (100, 255, 100),           # Green for healing
         }
     
     def render_tile(self, screen: pygame.Surface, x: int, y: int, tile_type: int, 
@@ -82,10 +90,33 @@ class ASCIIRenderer:
         text_rect = text_surface.get_rect(center=(x, y))
         screen.blit(text_surface, text_rect)
     
-    def render_entity(self, screen: pygame.Surface, x: int, y: int, entity_type: str):
+    def render_entity_with_effects(self, screen: pygame.Surface, x: int, y: int, entity_type: str, effects: dict = None):
+        """Render entity with visual effects"""
+        effects = effects or {}
+        
+        # Get base color
+        color = self.colors.get(entity_type, (255, 255, 255))
+        
+        # Apply effects
+        if effects.get('anticipation', False):
+            # Slightly brighten during anticipation
+            color = tuple(min(255, int(c * 1.2)) for c in color)
+        
+        if effects.get('hit_flash', False):
+            # Flash white when hit
+            color = (255, 255, 255)
+        
+        if effects.get('critical', False):
+            # Yellow tint for critical hits
+            color = (255, 255, 100)
+        
+        # Render with effects
+        self.render_entity(screen, x, y, entity_type, color)
+    
+    def render_entity(self, screen: pygame.Surface, x: int, y: int, entity_type: str, color_override=None):
         """Render an entity (player, enemy) with ASCII symbol"""
         symbol = self.symbols.get(entity_type, "?")
-        color = self.colors.get(entity_type, WHITE)
+        color = color_override if color_override else self.colors.get(entity_type, WHITE)
         
         # Render with slight background for visibility
         bg_vertices = HexGrid.get_hex_vertices(x, y)
@@ -152,6 +183,81 @@ class ASCIIRenderer:
                 fill_color = (200, 100, 100)  # Red
             
             pygame.draw.rect(screen, fill_color, fill_rect)
+    
+    def render_message_panel(self, screen: pygame.Surface, message: str, message_type: str = "info"):
+        """Render a non-intrusive message panel"""
+        if not message:
+            return
+        
+        # Position at top-right, below status panel
+        panel_width = min(400, max(200, len(message) * 8 + 40))
+        panel_height = 50
+        panel_x = SCREEN_WIDTH - panel_width - 10
+        panel_y = 150  # Below status panel
+        
+        # Different colors for different message types
+        colors = {
+            "info": self.colors["ui_text"],
+            "success": self.colors["ui_accent"],
+            "warning": (255, 200, 100),
+            "error": (255, 100, 100),
+            "combat": (255, 150, 150)
+        }
+        
+        message_color = colors.get(message_type, self.colors["ui_text"])
+        
+        # Semi-transparent background
+        bg_surface = pygame.Surface((panel_width, panel_height))
+        bg_surface.set_alpha(200)
+        bg_surface.fill((20, 20, 30))
+        screen.blit(bg_surface, (panel_x, panel_y))
+        
+        # Border
+        pygame.draw.rect(screen, message_color, (panel_x, panel_y, panel_width, panel_height), 2)
+        
+        # Message text
+        self.render_text(screen, message, panel_x + 10, panel_y + 15, "small", message_color)
+    
+    def render_floating_text(self, screen: pygame.Surface, text: str, x: int, y: int, 
+                           color: str = "ui_accent", fade_alpha: float = 1.0, animation_type: str = "float"):
+        """Render floating text with fade effect and animation-specific styling"""
+        if fade_alpha <= 0:
+            return
+        
+        # Choose font based on animation type
+        if animation_type == "damage":
+            font = self.ui_font  # Larger font for damage numbers
+        else:
+            font = self.small_font
+        
+        # Get color
+        text_color = self.colors.get(color, self.colors["ui_text"])
+        
+        # Create text surface
+        text_surface = font.render(text, True, text_color)
+        
+        # Apply fade
+        if fade_alpha < 1.0:
+            text_surface.set_alpha(int(255 * fade_alpha))
+        
+        # Add outline for damage numbers to make them more visible
+        if animation_type == "damage":
+            # Create outline
+            outline_surface = font.render(text, True, (0, 0, 0))
+            if fade_alpha < 1.0:
+                outline_surface.set_alpha(int(255 * fade_alpha))
+            
+            # Draw outline in multiple positions
+            text_rect = text_surface.get_rect(center=(x, y))
+            for dx, dy in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+                outline_rect = text_rect.copy()
+                outline_rect.x += dx
+                outline_rect.y += dy
+                screen.blit(outline_surface, outline_rect)
+        
+        # Draw main text
+        text_rect = text_surface.get_rect(center=(x, y))
+        screen.blit(text_surface, text_rect)
     
     def render_combat_log_panel(self, screen: pygame.Surface, combat_log: list):
         """Render combat log with retro styling"""

@@ -223,6 +223,7 @@ class CombatSystem:
     def initiate_combat(player, enemy) -> dict:
         """Start combat between player and enemy, return combat result"""
         combat_log = []
+        damage_events = []  # Track damage for floating numbers
         
         # Combat continues until one dies
         while player.health > 0 and enemy.alive:
@@ -230,6 +231,14 @@ class CombatSystem:
             player_damage = CombatSystem._calculate_player_damage(player)
             actual_damage = enemy.take_damage(player_damage)
             combat_log.append(f"You deal {actual_damage} damage to {enemy.enemy_type}")
+            
+            # Record damage dealt for floating number
+            damage_events.append({
+                'type': 'damage_dealt',
+                'amount': actual_damage,
+                'target': 'enemy',
+                'position': (enemy.q, enemy.r)
+            })
             
             if not enemy.alive:
                 # Enemy defeated
@@ -243,12 +252,21 @@ class CombatSystem:
             player.take_damage(enemy_damage)
             combat_log.append(f"{enemy.enemy_type.title()} deals {enemy_damage} damage to you")
             
+            # Record damage received for floating number
+            damage_events.append({
+                'type': 'damage_received',
+                'amount': enemy_damage,
+                'target': 'player',
+                'position': (player.q, player.r)
+            })
+            
             if player.health <= 0:
                 combat_log.append("You have been defeated!")
                 break
         
         return {
             "log": combat_log,
+            "damage_events": damage_events,
             "player_won": enemy.alive == False,
             "player_died": player.health <= 0
         }
